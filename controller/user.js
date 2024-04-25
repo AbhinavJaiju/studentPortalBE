@@ -12,22 +12,25 @@ const router = express.Router();
 router.post('/auth/signup', async (req, res) => {
   try {
     const {
-      email_Id, password, firstname, lastname, contactNumber, studentSlug,
+      email,studentSlug,studentId, password, firstname, lastname, contactNumber
     } = req.body;
-    if (!email_Id || !password || !firstname || !lastname || !studentSlug || !contactNumber) {
+    if (!email || !password || !firstname || !lastname || !studentSlug || !contactNumber ||!studentId) {
       res.status(400).end();
     }
-    const hashedPassword = await bcrypt.hash(password, 8);
+
     const userData = {
-      email_Id,
-      password: hashedPassword,
+      email,
+      studentSlug:studentSlug,
+      studentId,
+      password,
       firstname,
       lastname,
-      contactNumber,
-      studentSlug
-
-    };
+      contactNumber
+    }
+    console.log(email_Id);
+    console.log('hello');
     const response = await gqlClient.request(CreateNextUserMutation, { userData });
+    console.log(response)
     if (!response?.createNextUser) {
       console.log('CreateUser Failed, Response: ', response);
       res.status(400).end()
@@ -105,6 +108,8 @@ router.get('/auth/me', async (req, res) => {
     res.status(400).json(defaultReturnObject);
   }
 });
+
+//
 
 
 export default router;
