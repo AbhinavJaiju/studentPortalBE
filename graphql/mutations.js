@@ -44,21 +44,26 @@ export const CreateNextUserMutation = gql`
 export const GetUserByEmailQuery = gql`
 query getUserByEmailQuery($email: String!) {
   studentDetail(where: {email_Id: $email}) {
-    studentId
-    studentSlug
-    sex
-    password
     email_Id
     firstname
     lastname
-    nationality
     contactNumber
-    subjects_picked {
-      subjectName
-      subject_Id
-      chosenSubjectDate {
-        subjectDateAndTime
-        subjectDateId
+    password
+    studentSlug
+    studentId
+    subjectDates {
+      subjectDateAndTime
+      subject {
+        subjectName
+        subjectSlug
+        subject_Id
+      }
+    }
+    timeTables(where: {studentDetails_some: {email_Id: $email}}) {
+      csv {
+        url
+        id
+        fileName
       }
     }
   }
