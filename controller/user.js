@@ -11,7 +11,8 @@ import {
   deleteNotice,
   updateNotice,
   CreateRequest,
-  publishRequest
+  publishRequest,
+  getNotices
 } from "../graphql/mutations.js";
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 const router = express.Router();
@@ -120,7 +121,7 @@ async function handleUserResponse(res, query, email, detailKey) {
     console.log('getUserResponse:', getUserResponse); // Log the response to check its structure
 
     console.log(getUserResponse)
-    const nextUser = getUserResponse; // Adjust to match the structure of the response
+    const nextUser = getUserResponse.studentDetail ? getUserResponse.studentDetail : getUserResponse; // Adjust to match the structure of the response
     if (!nextUser) {
       console.log('hjasd')
       res.status(400).json(defaultReturnObject);
@@ -330,5 +331,20 @@ router.post('/request', async(req,res)=>{
     res.status(500).send({ error: true, message: err.message });
   }
 });
+
+router.get('/getnotice', async(req,res)=>{
+  try{
+    const response = await gqlClient.request(getNotices)
+    console.log(response)
+    if(!response?.notices){
+      console.log('Get Request Failed, Response:', response);
+      return res.status(400).send({error:true, message:"Failed to Get"});
+    }
+  }catch(err){
+    console.log('POST /notices, Something Went Wrong:', err);
+    res.status(500).send({ error: true, message: err.message });
+  }
+});
+
 
 export default router;

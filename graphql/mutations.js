@@ -200,3 +200,13 @@ export const CreateRequest = gql`
     }
   }
 `;
+
+export const getNotices = gql`
+query getNotice {
+  notices(where: {active: true}) {
+    noticeId
+    noticeDescription
+    active
+  }
+}
+`;
