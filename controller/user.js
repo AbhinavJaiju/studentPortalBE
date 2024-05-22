@@ -340,6 +340,7 @@ router.get('/getnotice', async(req,res)=>{
       console.log('Get Request Failed, Response:', response);
       return res.status(400).send({error:true, message:"Failed to Get"});
     }
+    res.status(201).send({notice:response.notices})
   }catch(err){
     console.log('POST /notices, Something Went Wrong:', err);
     res.status(500).send({ error: true, message: err.message });
