@@ -42,8 +42,8 @@ export const CreateNextUserMutation = gql`
 // `;
 
 export const GetUserByEmailQuery = gql`
-query getUserByEmailQuery($email: String!) {
-    studentDetail(where: {email_Id: $email}) {
+  query getUserByEmailQuery($email: String!) {
+    studentDetail(where: { email_Id: $email }) {
       email_Id
       firstname
       lastname
@@ -59,7 +59,7 @@ query getUserByEmailQuery($email: String!) {
           subject_Id
         }
       }
-      timeTables(where: {studentDetails_some: {email_Id: $email}}) {
+      timeTables(where: { studentDetails_some: { email_Id: $email } }) {
         csv {
           url
           id
@@ -67,6 +67,136 @@ query getUserByEmailQuery($email: String!) {
         }
       }
       id
+      requests(where: { studentDetail: { email_Id: $email } }) {
+        id
+        requestDescription
+        requestId
+        requestTitle
+      }
     }
   }
-}`;
+`;
+
+export const GetAdminDetailsQuery = gql`
+  query GetAdminDetailsQuery($email: String) {
+    admin(where: { adminEmail: $email }) {
+      adminEmail
+      adminId
+      adminName
+      studentDetails {
+        firstname
+        email_Id
+        timeTables {
+          timetableId
+        }
+      }
+      adminPassword
+      adminSlug
+      notices {
+        noticeId
+        noticeDescription
+        id
+        active
+      }
+      requests {
+        requestDescription
+        requestId
+        requestTitle
+        studentDetail {
+          firstname
+          lastname
+        }
+      }
+    }
+  }
+`;
+
+export const CreateNoticeMutation = gql`
+  mutation createNotice(
+    $email: String!
+    $id: Int!
+    $description: String!
+    $active: Boolean
+  ) {
+    createNotice(
+      data: {
+        admin: { connect: { adminEmail: $email } }
+        noticeId: $id
+        noticeDescription: $description
+        active: $active
+      }
+    ) {
+      noticeDescription
+      noticeId
+      id
+      active
+    }
+  }
+`;
+
+export const publishNotice = gql`
+  mutation publishNotice($ID: ID) {
+    publishNotice(where: { id: $ID }) {
+      id
+    }
+  }
+`;
+
+export const publishRequest = gql`
+  mutation publishRequest($ID: ID) {
+    publishRequest(where: { id: $ID }) {
+      id
+      requestId
+      requestTitle
+      requestDescription
+    }
+  }
+`;
+
+export const deleteNotice = gql`
+  mutation deleteNotice($id: ID!) {
+    deleteNotice(where: { id: $id }) {
+      noticeDescription
+      noticeId
+    }
+  }
+`;
+
+export const updateNotice = gql`
+  mutation updateNotice($id: ID!, $active: Boolean!) {
+    updateNotice(where: { id: $id }, data: { active: $active }) {
+      noticeDescription
+      noticeId
+      active
+      id
+    }
+  }
+`;
+
+export const CreateRequest = gql`
+  mutation createRequest(
+    $studentEmail: String!
+    $requestTitle: String
+    $requestDescription: String!
+    $requestId: Int
+  ) {
+    createRequest(
+      data: {
+        admin: { connect: { adminEmail: "admin@gmail.com" } }
+        requestTitle: $requestTitle
+        requestDescription: $requestDescription
+        requestId: $requestId
+        studentDetail: { connect: { email_Id: $studentEmail } }
+      }
+    ) {
+      id
+      requestId
+      requestDescription
+      requestTitle
+      studentDetail {
+        firstname
+        lastname
+      }
+    }
+  }
+`;
