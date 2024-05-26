@@ -86,6 +86,13 @@ export const GetAdminDetailsQuery = gql`
       studentDetails {
         firstname
         email_Id
+        subjects_picked {
+          subjectName
+          subjectSlug
+        }
+        subjectDates {
+          subjectDateId
+        }
         timeTables {
           timetableId
         }
@@ -202,11 +209,64 @@ export const CreateRequest = gql`
 `;
 
 export const getNotices = gql`
-query getNotice {
-  notices(where: {active: true}) {
-    noticeId
-    noticeDescription
-    active
+  query getNotice {
+    notices(where: { active: true }) {
+      noticeId
+      noticeDescription
+      active
+    }
   }
-}
+`;
+
+export const createSubjectDate = gql`
+  mutation CreateSubjectDateTime(
+    $subjectId: Int!
+    $emailId: String!
+    $subjectSlug: String!
+    $subjectDateTime: [DateTime!]
+  ) {
+    createSubjectDate(
+      data: {
+        subjectDateId: $subjectId
+        studentDetail: { connect: { StudentDetail: { email_Id: $emailId } } }
+        subject: { connect: { subjectSlug: $subjectSlug } }
+        subjectDateAndTime: $subjectDateTime
+      }
+    ) {
+      id
+      subjectDateAndTime
+      subjectDateId
+      studentDetail {
+        ... on StudentDetail {
+          id
+          firstname
+          email_Id
+        }
+      }
+      subject {
+        subjectName
+        subjectSlug
+      }
+    }
+  }
+`;
+
+export const PublishSubjectDate = gql`
+  mutation PublishSubjectDateTime($ID: ID!) {
+    publishSubjectDate(where: { id: $ID }) {
+      subjectDateAndTime
+      subjectDateId
+      subject {
+        subjectName
+        subjectSlug
+      }
+      studentDetail {
+        ... on StudentDetail {
+          id
+          firstname
+          email_Id
+        }
+      }
+    }
+  }
 `;

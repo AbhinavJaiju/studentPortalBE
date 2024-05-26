@@ -12,7 +12,9 @@ import {
   updateNotice,
   CreateRequest,
   publishRequest,
-  getNotices
+  getNotices,
+  createSubjectDate,
+  PublishSubjectDate
 } from "../graphql/mutations.js";
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 const router = express.Router();
@@ -249,6 +251,37 @@ console.log(active)
   }
 });
 
+router.post('/createSubjectDate', async(req,res)=>{
+  console.log('jello')
+  try{
+    console.log(req.body)
+    const {subjectId,subjectDateTime,subjectSlug, emailId} = req.body
+    console.log(subjectId)
+    if(!subjectId || !subjectDateTime || !subjectSlug || !emailId){
+      return res.status(400).send({error:true, message:"Provide required data"});
+    }
+    const response  =  await gqlClient.request(createSubjectDate,{subjectId:subjectId,emailId:emailId,subjectSlug:subjectSlug,subjectDateTime:subjectDateTime });
+    if(!response?.createSubjectDate){
+      console.log('Create Subject Date Failed, Response:', response);
+      return res.status(400).send({error:true, message:"Failed to create SubjectDateTime"});
+    }
+
+    console.log(response.createSubjectDate.id);
+    const ID = response.createSubjectDate.id;
+    
+    const publishResponse = await gqlClient.request(PublishSubjectDate,{ID})
+    console.log(publishResponse)
+    if(!publishResponse.publishSubjectDate){
+      console.log('Create Subject Date Failed, Response:', publishResponse);
+    }
+
+    res.status(201).send({notice:response.createSubjectDate});
+  }catch(err){
+    console.log("POST /api/createSubjectDate, Something went wrong:", err);
+    res.status(500).send({error:true, message:err.message});
+  }
+});
+
 router.post('/delete', async (req,res) => {
   try{
     const {ID} =req.body;
@@ -346,6 +379,7 @@ router.get('/getnotice', async(req,res)=>{
     res.status(500).send({ error: true, message: err.message });
   }
 });
+
 
 
 export default router;
